@@ -1,0 +1,3 @@
+import defaultProfile from "../assets/default-profile.png";
+
+<img src={professional.image || defaultProfile} />
