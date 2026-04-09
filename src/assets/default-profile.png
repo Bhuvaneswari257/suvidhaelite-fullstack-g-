@@ -1,0 +1,7 @@
+import defaultProfile from "../../assets/default-profile.png";
+
+<img
+  src={professional.image || defaultProfile}
+  alt="profile"
+  onError={(e) => (e.target.src = defaultProfile)}
+/>
