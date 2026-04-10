@@ -1,20 +1,74 @@
-import { createContext, useContext, useMemo } from "react";
-import { useBookings } from "./BookingContext";
+import { createContext, useContext, useState } from "react";
+import apiClient from "../services/apiClient";
+import { mapErrorMessage } from "../utils/errorHandler";
 
 const EarningsContext = createContext();
 
 export function EarningsProvider({ children }) {
+  const [earnings, setEarnings] = useState({
+    totalEarnings: 0,
+    byDate: [],
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const { bookings } = useBookings();
+  // =========================================
+  // FETCH EARNINGS
+  // =========================================
+  const fetchEarnings = async () => {
+    try {
+      setError(null);
+      setIsLoading(true);
+      
+      const response = await apiClient.get('/earnings');
+      
+      setEarnings({
+        totalEarnings: response.data.totalEarnings || 0,
+        byDate: response.data.byDate || [],
+      });
+      
+      return { success: true };
+    } catch (err) {
+      const errMsg = mapErrorMessage(err);
+      setError(errMsg);
+      return { success: false, error: errMsg };
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  const totalEarnings = useMemo(() => {
-    return bookings
-      .filter(b => b.status === "PAID")
-      .reduce((sum, b) => sum + b.price, 0);
-  }, [bookings]);
+  // =========================================
+  // FETCH EARNINGS BY DATE RANGE
+  // =========================================
+  const fetchEarningsByDate = async (startDate, endDate) => {
+    try {
+      setError(null);
+      setIsLoading(true);
+      
+      const response = await apiClient.get('/earnings/summary', {
+        params: { startDate, endDate },
+      });
+      
+      return { success: true, data: response.data };
+    } catch (err) {
+      const errMsg = mapErrorMessage(err);
+      setError(errMsg);
+      return { success: false, error: errMsg };
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <EarningsContext.Provider value={{ totalEarnings }}>
+    <EarningsContext.Provider
+      value={{
+        ...earnings,
+        isLoading,
+        error,
+        fetchEarnings,
+        fetchEarningsByDate,
+      }}
+    >
       {children}
     </EarningsContext.Provider>
   );

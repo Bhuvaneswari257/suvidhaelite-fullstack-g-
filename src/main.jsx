@@ -10,6 +10,9 @@ import { ReviewProvider } from "./context/ReviewContext";
 /* ✅ ADD THIS IMPORT */
 import { SupportProvider } from "./context/SupportContext";
 
+/* ✅ NEW (ONLY ADDITION) */
+import { ProfessionalProvider } from "./pages/professional/ProfessionalContext";
+
 import App from "./App.jsx";
 import "./index.css";
 
@@ -18,21 +21,23 @@ createRoot(document.getElementById("root")).render(
     <BrowserRouter>
       <AuthProvider>
 
-        {/* 🔥 MUST WRAP BOOKING */}
-        <NotificationProvider>
+        <ProfessionalProvider>   {/* 🔥 ADD THIS */}
 
-          {/* ✅ SUPPORT SYSTEM PROVIDER ADDED */}
-          <SupportProvider>
+          <NotificationProvider>
 
-            <BookingProvider>
-              <ReviewProvider>
-                <App />
-              </ReviewProvider>
-            </BookingProvider>
+            <SupportProvider>
 
-          </SupportProvider>
+              <BookingProvider>
+                <ReviewProvider>
+                  <App />
+                </ReviewProvider>
+              </BookingProvider>
 
-        </NotificationProvider>
+            </SupportProvider>
+
+          </NotificationProvider>
+
+        </ProfessionalProvider>  {/* 🔥 END */}
 
       </AuthProvider>
     </BrowserRouter>

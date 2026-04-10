@@ -1,16 +1,54 @@
-# React + Vite
+# Suvidha Elite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project runs with:
 
-Currently, two official plugins are available:
+- React + Vite frontend
+- Spring Boot backend
+- JWT authentication
+- H2 file database for local demo data
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Run
 
-## React Compiler
+Open two terminals in the project root.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Terminal 1
 
-## Expanding the ESLint configuration
+```powershell
+npm run start:backend
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Terminal 2
+
+```powershell
+npm run start:frontend
+```
+
+Open:
+
+- Frontend: `http://127.0.0.1:5173`
+- Backend: `http://localhost:8080`
+- H2 console: `http://localhost:8080/h2-console`
+
+## Demo Accounts
+
+- Admin: `admin@suvidha.com` / `admin123`
+- Support: `support@suvidha.com` / `support123`
+
+You can also register new `user` and `professional` accounts from the UI.
+
+## Working Features
+
+- Register
+- Login
+- Refresh token
+- Current user profile
+- Update profile
+- Logout
+- Auto logout after inactivity
+- User/professional role switching
+
+## Notes
+
+- Inactivity timeout is set in `.env` with `VITE_INACTIVITY_TIMEOUT_MS`.
+- Forgot password and reset password are demo placeholders.
+- Some non-auth modules still use frontend-side mock data.

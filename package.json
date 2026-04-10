@@ -5,7 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:frontend": "vite --host 127.0.0.1 --port 5173",
     "build": "vite build",
+    "start:frontend": "powershell -ExecutionPolicy Bypass -File .\\scripts\\run-frontend.ps1",
+    "start:backend": "powershell -ExecutionPolicy Bypass -File .\\scripts\\run-backend.ps1",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -13,7 +16,9 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-icons": "^5.5.0",
-    "react-router-dom": "^7.13.0"
+    "react-router-dom": "^7.13.0",
+    "axios": "^1.6.0",
+    "zod": "^3.22.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

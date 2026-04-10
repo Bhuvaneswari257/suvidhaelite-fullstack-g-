@@ -1,125 +1,184 @@
-import { createContext, useContext, useState } from "react";
-import { useAuth } from "./AuthContext";
+import { createContext, useContext, useState, useEffect } from "react";
+import bookingService from "../services/bookingService";
 import { useNotifications } from "./NotificationContext";
 
 const BookingContext = createContext();
 
 export function BookingProvider({ children }) {
-
-  const { user, userRole } = useAuth();  // supports both styles
   const { addNotification } = useNotifications();
-
   const [bookings, setBookings] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchBookings();
+  }, []);
 
   // =========================================
-  // ✅ CREATE BOOKING (USER SIDE)
+  // FETCH ALL BOOKINGS
   // =========================================
-  const addBooking = (bookingData) => {
+  const fetchBookings = async () => {
+    try {
+      setError(null);
+      setIsLoading(true);
+      const result = await bookingService.getMyBookings();
 
-    const newBooking = {
-      id: Date.now(),
-
-      // PROFESSIONAL CONNECTION
-      professionalId: bookingData.professionalId,
-      professionalName: bookingData.professionalName,
-
-      // CUSTOMER INFO (SAFE FALLBACK)
-      customerId: user?.id || Date.now(),
-      customerName: user?.name || userRole || "User",
-
-      service: bookingData.service,
-      date: bookingData.date,
-      time: bookingData.time,
-      price: bookingData.price || 0,
-
-      // BUSINESS STATES
-      status: "Confirmed",      // user display
-      lifecycle: "PENDING",     // professional workflow
-      payment: "Pending",
-      refund: null,
-
-      createdAt: new Date()
-    };
-
-    setBookings(prev => [...prev, newBooking]);
-
-    // 🔔 REAL-TIME PROFESSIONAL NOTIFICATION
-    addNotification({
-      professionalId: bookingData.professionalId,
-      message: `New booking received for ${bookingData.service}`,
-      type: "BOOKING",
-      bookingId: newBooking.id
-    });
+      if (result.success) {
+        setBookings(result.data || []);
+        return { success: true };
+      } else {
+        setError(result.error);
+        return { success: false, error: result.error };
+      }
+    } catch (err) {
+      const errMsg = err.message || "Failed to fetch bookings";
+      setError(errMsg);
+      return { success: false, error: errMsg };
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // =========================================
-  // ✅ PROFESSIONAL WORKFLOW UPDATE
+  // CREATE BOOKING
   // =========================================
-  const updateStatus = (id, newStatus) => {
-    setBookings(prev =>
-      prev.map(b =>
-        b.id === id ? { ...b, lifecycle: newStatus } : b
-      )
-    );
+  const addBooking = async (bookingData) => {
+    try {
+      setError(null);
+      setIsLoading(true);
+      const result = await bookingService.createBooking(bookingData);
+
+      if (result.success) {
+        const newBooking = result.data;
+        setBookings(prev => [...prev, newBooking]);
+        addNotification({
+          message: `New booking confirmed for ${bookingData.service}`,
+          type: "BOOKING",
+        });
+        return { success: true, data: newBooking };
+      } else {
+        setError(result.error);
+        return { success: false, error: result.error };
+      }
+    } catch (err) {
+      const errMsg = err.message || "Failed to create booking";
+      setError(errMsg);
+      return { success: false, error: errMsg };
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // =========================================
-  // ✅ USER CANCEL BOOKING + REFUND LOGIC
+  // UPDATE BOOKING STATUS
   // =========================================
-  const cancelBooking = (index) => {
-    setBookings(prev =>
-      prev.map((b, i) => {
+  const updateStatus = async (bookingId, newStatus) => {
+    try {
+      setError(null);
+      setIsLoading(true);
+      const result = await bookingService.updateBookingStatus(
+        bookingId,
+        newStatus
+      );
 
-        if (i !== index) return b;
-
-        // IF PAYMENT DONE → REFUND
-        if (b.payment === "Paid") {
-          return {
-            ...b,
-            status: "Cancelled",
-            lifecycle: "CANCELLED",
-            refund: "Refunded"
-          };
-        }
-
-        // NORMAL CANCEL
-        return {
-          ...b,
-          status: "Cancelled",
-          lifecycle: "CANCELLED"
-        };
-      })
-    );
+      if (result.success) {
+        setBookings(prev =>
+          prev.map(b => (b.id === bookingId ? result.data : b))
+        );
+        return { success: true };
+      } else {
+        setError(result.error);
+        return { success: false, error: result.error };
+      }
+    } catch (err) {
+      const errMsg = err.message || "Failed to update booking status";
+      setError(errMsg);
+      return { success: false, error: errMsg };
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // =========================================
-  // ✅ USER PAYMENT
+  // CANCEL BOOKING
   // =========================================
-  const payForBooking = (index) => {
-    setBookings(prev =>
-      prev.map((b, i) =>
-        i === index
-          ? {
-              ...b,
-              payment: "Paid",
-              lifecycle: "PAID"
-            }
-          : b
-      )
-    );
+  const cancelBooking = async (bookingId) => {
+    try {
+      setError(null);
+      setIsLoading(true);
+      const result = await bookingService.cancelBooking(bookingId);
+
+      if (result.success) {
+        setBookings(prev =>
+          prev.map(b =>
+            b.id === bookingId ? { ...b, status: "Cancelled" } : b
+          )
+        );
+        addNotification({
+          message: "Booking cancelled",
+          type: "NOTIFICATION",
+        });
+        return { success: true };
+      } else {
+        setError(result.error);
+        return { success: false, error: result.error };
+      }
+    } catch (err) {
+      const errMsg = err.message || "Failed to cancel booking";
+      setError(errMsg);
+      return { success: false, error: errMsg };
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // =========================================
-  // CONTEXT VALUE
+  // PAYMENT FOR BOOKING
   // =========================================
+  const payForBooking = async (bookingId, paymentData) => {
+    try {
+      setError(null);
+      setIsLoading(true);
+      const result = await bookingService.payForBooking(
+        bookingId,
+        paymentData
+      );
+
+      if (result.success) {
+        setBookings(prev =>
+          prev.map(b =>
+            b.id === bookingId ? { ...b, paymentStatus: "Paid" } : b
+          )
+        );
+        addNotification({
+          message: "Payment processed successfully",
+          type: "PAYMENT",
+        });
+        return { success: true };
+      } else {
+        setError(result.error);
+        return { success: false, error: result.error };
+      }
+    } catch (err) {
+      const errMsg = err.message || "Payment failed";
+      setError(errMsg);
+      return { success: false, error: errMsg };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <BookingContext.Provider
       value={{
         bookings,
+        isLoading,
+        error,
+        fetchBookings,
         addBooking,
         updateStatus,
         cancelBooking,
-        payForBooking
+        payForBooking,
       }}
     >
       {children}
