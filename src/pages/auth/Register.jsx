@@ -2,6 +2,43 @@ import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 
+const getPasswordStrength = (password) => {
+  if (!password) {
+    return null;
+  }
+
+  const checks = [
+    password.length >= 8,
+    /[A-Z]/.test(password),
+    /[a-z]/.test(password),
+    /\d/.test(password),
+    /[^A-Za-z0-9]/.test(password),
+  ];
+  const score = checks.filter(Boolean).length;
+
+  if (password.length < 6 || score <= 2) {
+    return {
+      label: "Weak password",
+      className: "text-red-600",
+      barClassName: "bg-red-500 w-1/3",
+    };
+  }
+
+  if (password.length >= 10 && score >= 4) {
+    return {
+      label: "Strong password",
+      className: "text-green-700",
+      barClassName: "bg-green-600 w-full",
+    };
+  }
+
+  return {
+    label: "Medium password",
+    className: "text-yellow-700",
+    barClassName: "bg-[#C9A227] w-2/3",
+  };
+};
+
 export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -14,6 +51,7 @@ export default function Register() {
   const [address, setAddress] = useState("");
   const [errorMessage, setErrorMessage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
+  const passwordStrength = getPasswordStrength(password);
 
   const validateForm = () => {
     const trimmedName = name.trim();
@@ -143,6 +181,16 @@ export default function Register() {
             onChange={(e) => setPassword(e.target.value)}
             value={password}
           />
+          {passwordStrength && (
+            <div className="space-y-2">
+              <div className="h-2 bg-gray-100 rounded-lg overflow-hidden">
+                <div className={`h-full ${passwordStrength.barClassName}`} />
+              </div>
+              <p className={`text-sm font-semibold ${passwordStrength.className}`}>
+                {passwordStrength.label}
+              </p>
+            </div>
+          )}
 
           <input
             type="password"

@@ -3,6 +3,20 @@ import { useAuth } from "../../context/AuthContext"; // ✅ FIXED PATH
 import { useNavigate, Link } from "react-router-dom";
 
 const LOGOUT_REASON_KEY = "auth_logout_reason";
+const DEFAULT_LOGIN_ERROR = "Invalid email or password.";
+
+const getSafeLoginMessage = (error) => {
+  if (!error) {
+    return DEFAULT_LOGIN_ERROR;
+  }
+
+  const message = String(error).trim();
+  if (!message || message.length > 120) {
+    return DEFAULT_LOGIN_ERROR;
+  }
+
+  return message;
+};
 
 export default function Login() {
   const { login } = useAuth();
@@ -25,10 +39,10 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const result = await login(email, password);
+    const result = await login(email.trim(), password);
 
     if (!result.success) {
-      setMessage(result.error || "Invalid credentials");
+      setMessage(getSafeLoginMessage(result.error));
       return;
     }
 

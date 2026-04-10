@@ -1,6 +1,5 @@
 import { Routes, Route, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
-import { useProfessionals } from "./pages/professional/ProfessionalContext";
 import ErrorBoundary from "./components/ErrorBoundary";
 
 /* ✅ SAME IMPORTS */
@@ -44,11 +43,12 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   const { userRole, user, logout, switchRole } = useAuth();
-  const { professionals } = useProfessionals();
   const navigate = useNavigate();
 
-  const isAlsoProfessional = userRole === 'user' && professionals.find(p => p.email === user?.email || p.name === user?.name);
-  const isAlsoUser = userRole === 'professional'; // Professionals can technically always revert to User mode
+  const accountRoles = user?.roles || [];
+  const isProfessionalAccount = accountRoles.includes("professional");
+  const canSwitchToProfessional = userRole === "user" && isProfessionalAccount;
+  const canSwitchToUser = userRole === "professional" && isProfessionalAccount;
 
   const handleLogout = async () => {
     await logout("manual");
@@ -93,10 +93,10 @@ function App() {
                 {userRole === "professional" && <Link to="/professional">Professional</Link>}
 
                 {/* DYNAMIC SWITCHING FOR UX */}
-                {isAlsoProfessional && (
+                {canSwitchToProfessional && (
                   <a href="#" onClick={(e) => handleSwitchRole('professional', '/professional', e)} className="bg-[#C9A227] text-white px-3 py-1 rounded">Switch to Professional</a>
                 )}
-                {isAlsoUser && (
+                {canSwitchToUser && (
                   <a href="#" onClick={(e) => handleSwitchRole('user', '/user', e)} className="border border-[#C9A227] text-[#C9A227] px-3 py-1 rounded">Switch to User</a>
                 )}
 
