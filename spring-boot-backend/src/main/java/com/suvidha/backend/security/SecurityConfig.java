@@ -39,6 +39,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/refresh-token",
                     "/api/auth/forgot-password", "/api/auth/reset-password", "/h2-console/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/professionals", "/api/professionals/**").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .anyRequest().authenticated()
             )

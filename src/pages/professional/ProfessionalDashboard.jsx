@@ -52,7 +52,7 @@ export default function ProfessionalDashboard() {
     }
   }, [professionals, user]);
 
-  const handleSaveProfile = () => {
+  const handleSaveProfile = async () => {
     if (!name.trim() || !bio.trim() || !category.trim() || !location.trim()) {
       alert("Please fill all required fields");
       return;
@@ -60,7 +60,7 @@ export default function ProfessionalDashboard() {
 
     const parsedExperience = parseInt(experience, 10);
 
-    addProfessional({
+    const result = await addProfessional({
       email: user?.email,
       name: name.trim(),
       bio: bio.trim(),
@@ -74,7 +74,12 @@ export default function ProfessionalDashboard() {
       availableTimes,
     });
 
-    alert("✅ Profile saved successfully");
+    if (!result.success) {
+      alert(result.error || "Profile could not be saved");
+      return;
+    }
+
+    alert("Profile saved successfully");
     setName("");
     setBio("");
     setExperience("");

@@ -1,49 +1,42 @@
+import apiClient from './apiClient';
 import { mapErrorMessage } from '../utils/errorHandler';
-
-const PROS_DB_KEY = 'mock_professionals';
-
-const getDb = () => JSON.parse(localStorage.getItem(PROS_DB_KEY) || "[]");
-const saveDb = (db) => localStorage.setItem(PROS_DB_KEY, JSON.stringify(db));
 
 const professionalService = {
   getAllProfessionals: async (filters = {}) => {
-    return { success: true, data: getDb() };
+    try {
+      const response = await apiClient.get('/api/professionals', {
+        params: filters,
+      });
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { success: false, error: mapErrorMessage(error) };
+    }
   },
 
   searchProfessionals: async (query, category = null) => {
-    let db = getDb();
-    if (query) {
-      db = db.filter(p => p.name.toLowerCase().includes(query.toLowerCase()) || p.category.toLowerCase().includes(query.toLowerCase()));
+    try {
+      const response = await apiClient.get('/api/professionals', {
+        params: { q: query || undefined, category: category || undefined },
+      });
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { success: false, error: mapErrorMessage(error) };
     }
-    if (category) {
-      db = db.filter(p => p.category.toLowerCase() === category.toLowerCase());
-    }
-    return { success: true, data: db };
   },
 
   getProfessionalById: async (professionalId) => {
-    const db = getDb();
-    const found = db.find(p => p.id === professionalId);
-    if(found) return { success: true, data: found };
-    return { success: false, error: "Not found" };
+    try {
+      const response = await apiClient.get(`/api/professionals/${professionalId}`);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { success: false, error: mapErrorMessage(error) };
+    }
   },
 
   registerAsProfessional: async (profileData) => {
     try {
-      const db = getDb();
-      // To simulate update safely, map by explicit email
-      const existingIndex = db.findIndex(p => p.email && Math.abs(p.email.localeCompare(profileData.email)) === 0);
-      let newProfessional;
-      
-      if (existingIndex !== -1) {
-        newProfessional = { ...db[existingIndex], ...profileData };
-        db[existingIndex] = newProfessional;
-      } else {
-        newProfessional = { ...profileData, id: Date.now().toString() };
-        db.push(newProfessional);
-      }
-      saveDb(db);
-      return { success: true, data: newProfessional };
+      const response = await apiClient.post('/api/professionals', profileData);
+      return { success: true, data: response.data };
     } catch (error) {
       return { success: false, error: mapErrorMessage(error) };
     }
@@ -51,38 +44,39 @@ const professionalService = {
 
   updateProfessionalProfile: async (professionalId, profileData) => {
     try {
-      const db = getDb();
-      const existingIndex = db.findIndex(p => p.id === professionalId);
-      if (existingIndex !== -1) {
-        db[existingIndex] = { ...db[existingIndex], ...profileData };
-        saveDb(db);
-        return { success: true, data: db[existingIndex] };
-      }
-      return { success: false, error: "Not found" };
+      const response = await apiClient.put(`/api/professionals/${professionalId}`, profileData);
+      return { success: true, data: response.data };
     } catch (error) {
       return { success: false, error: mapErrorMessage(error) };
     }
   },
 
-  getProfessionalServices: async (professionalId) => {
-    return { success: true, data: [] }; 
+  getProfessionalServices: async () => {
+    return { success: true, data: [] };
   },
 
-  updateProfessionalServices: async (professionalId, services) => {
-    return { success: true, data: [] }; 
+  updateProfessionalServices: async () => {
+    return { success: true, data: [] };
   },
 
   updateAvailability: async (professionalId, bookedTimeSlot) => {
     try {
-      const db = getDb();
-      const index = db.findIndex(p => p.id === professionalId);
-      if (index !== -1 && db[index].availableTimes) {
-        // Remove the exact booked timeslot from the professional's mock array
-        db[index].availableTimes = db[index].availableTimes.filter(t => t !== bookedTimeSlot);
-        saveDb(db);
-        return { success: true, data: db[index] };
+      const current = await professionalService.getProfessionalById(professionalId);
+      if (!current.success) {
+        return current;
       }
-      return { success: false, error: "Not found or no times" };
+
+      const professional = current.data;
+      const availableTimes = (professional.availableTimes || []).filter(
+        time => time !== bookedTimeSlot
+      );
+
+      const response = await apiClient.put(`/api/professionals/${professionalId}`, {
+        ...professional,
+        availableTimes,
+      });
+
+      return { success: true, data: response.data };
     } catch (error) {
       return { success: false, error: mapErrorMessage(error) };
     }
