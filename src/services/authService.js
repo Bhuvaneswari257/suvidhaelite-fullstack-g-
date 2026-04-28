@@ -7,7 +7,7 @@ const REFRESH_TOKEN_KEY = import.meta.env.VITE_JWT_REFRESH_KEY || 'vite_jwt_refr
 const authService = {
   register: async (email, password, name, address = '', role = 'user') => {
     try {
-      const response = await apiClient.post('/auth/register', {
+      const response = await apiClient.post('/api/auth/register', {
         email,
         password,
         name,
@@ -35,7 +35,7 @@ const authService = {
 
   login: async (email, password) => {
     try {
-      const response = await apiClient.post('/auth/login', {
+      const response = await apiClient.post('/api/auth/login', {
         email,
         password,
       });
@@ -66,7 +66,7 @@ const authService = {
 
   forgotPassword: async (email) => {
     try {
-      const response = await apiClient.post('/auth/forgot-password', { email });
+      const response = await apiClient.post('/api/auth/forgot-password', { email });
       return { success: true, data: response.data };
     } catch (error) {
       return {
@@ -78,7 +78,7 @@ const authService = {
 
   resetPassword: async (token, newPassword) => {
     try {
-      const response = await apiClient.post('/auth/reset-password', { token, newPassword });
+      const response = await apiClient.post('/api/auth/reset-password', { token, newPassword });
       return { success: true, data: response.data };
     } catch (error) {
       return {
@@ -90,7 +90,7 @@ const authService = {
 
   getCurrentUser: async () => {
     try {
-      const response = await apiClient.get('/auth/me');
+      const response = await apiClient.get('/api/auth/me');
       return { success: true, data: response.data };
     } catch (error) {
       return {
@@ -102,7 +102,7 @@ const authService = {
 
   updateUserProfile: async (userData) => {
     try {
-      const response = await apiClient.put('/auth/profile', userData);
+      const response = await apiClient.put('/api/auth/profile', userData);
       return { success: true, data: response.data };
     } catch (error) {
       return {
@@ -114,7 +114,7 @@ const authService = {
 
   switchRole: async (role) => {
     try {
-      const response = await apiClient.put('/auth/switch-role', { role });
+      const response = await apiClient.put('/api/auth/switch-role', { role });
       return { success: true, data: response.data };
     } catch (error) {
       return {
@@ -126,7 +126,7 @@ const authService = {
 
   logout: async () => {
     try {
-      await apiClient.post('/auth/logout');
+      await apiClient.post('/api/auth/logout');
     } catch (error) {
       // Best-effort server logout.
     } finally {

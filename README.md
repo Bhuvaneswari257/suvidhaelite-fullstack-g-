@@ -1,33 +1,29 @@
-# Suvidha Elite
+# Suvidha Elite Frontend
 
-This project runs with:
+This is the standalone React + Vite frontend for Suvidha Elite.
 
-- React + Vite frontend
-- Spring Boot backend
-- JWT authentication
-- H2 file database for local demo data
+## Backend Connection
+
+This frontend expects the backend API to run on:
+
+- `http://localhost:8080`
+
+Vite proxies `/api` requests to that backend during local development.
 
 ## Run
 
-Open two terminals in the project root.
-
-### Terminal 1
-
 ```powershell
-npm run start:backend
-```
-
-### Terminal 2
-
-```powershell
-npm run start:frontend
+npm install
+npm run start
 ```
 
 Open:
 
-- Frontend: `http://127.0.0.1:5173`
-- Backend: `http://localhost:8080`
-- H2 console: `http://localhost:8080/h2-console`
+- `http://127.0.0.1:5173`
+
+## Environment
+
+The API base path and inactivity timeout are configured in [`.env`](./.env).
 
 ## Demo Accounts
 
@@ -49,6 +45,7 @@ You can also register new `user` and `professional` accounts from the UI.
 
 ## Notes
 
+- Auth is connected to the Spring Boot backend.
 - Inactivity timeout is set in `.env` with `VITE_INACTIVITY_TIMEOUT_MS`.
 - Forgot password and reset password are demo placeholders.
 - Some non-auth modules still use frontend-side mock data.
