@@ -7,6 +7,9 @@
     "dev": "vite",
     "start": "vite --host 127.0.0.1 --port 5173",
     "build": "vite build",
+    "dev:frontend": "vite --host 127.0.0.1 --port 5173",
+    "start:frontend": "powershell -ExecutionPolicy Bypass -File .\\scripts\\run-frontend.ps1",
+    "start:backend": "powershell -ExecutionPolicy Bypass -File .\\scripts\\run-backend.ps1",
     "lint": "eslint .",
     "preview": "vite preview"
   },
