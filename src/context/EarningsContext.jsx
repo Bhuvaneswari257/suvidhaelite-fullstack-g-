@@ -20,7 +20,7 @@ export function EarningsProvider({ children }) {
       setError(null);
       setIsLoading(true);
       
-      const response = await apiClient.get('/earnings');
+      const response = await apiClient.get('/api/earnings');
       
       setEarnings({
         totalEarnings: response.data.totalEarnings || 0,
@@ -45,7 +45,7 @@ export function EarningsProvider({ children }) {
       setError(null);
       setIsLoading(true);
       
-      const response = await apiClient.get('/earnings/summary', {
+      const response = await apiClient.get('/api/earnings/summary', {
         params: { startDate, endDate },
       });
       

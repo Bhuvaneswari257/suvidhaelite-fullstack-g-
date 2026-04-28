@@ -7,7 +7,7 @@ const notificationService = {
    */
   getNotifications: async () => {
     try {
-      const response = await apiClient.get('/notifications');
+      const response = await apiClient.get('/api/notifications');
       return { success: true, data: response.data };
     } catch (error) {
       return {
@@ -23,7 +23,7 @@ const notificationService = {
   markAsRead: async (notificationId) => {
     try {
       const response = await apiClient.put(
-        `/notifications/${notificationId}/read`
+        `/api/notifications/${notificationId}/read`
       );
       return { success: true, data: response.data };
     } catch (error) {
@@ -39,7 +39,7 @@ const notificationService = {
    */
   markAllAsRead: async () => {
     try {
-      const response = await apiClient.put('/notifications/read-all');
+      const response = await apiClient.put('/api/notifications/read-all');
       return { success: true, data: response.data };
     } catch (error) {
       return {
@@ -55,7 +55,7 @@ const notificationService = {
   deleteNotification: async (notificationId) => {
     try {
       const response = await apiClient.delete(
-        `/notifications/${notificationId}`
+        `/api/notifications/${notificationId}`
       );
       return { success: true, data: response.data };
     } catch (error) {

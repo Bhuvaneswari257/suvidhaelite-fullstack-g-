@@ -7,7 +7,7 @@ const userService = {
    */
   getAllUsers: async (filters = {}) => {
     try {
-      const response = await apiClient.get('/admin/users', {
+      const response = await apiClient.get('/api/admin/users', {
         params: filters,
       });
       return { success: true, data: response.data };
@@ -24,7 +24,7 @@ const userService = {
    */
   getUserById: async (userId) => {
     try {
-      const response = await apiClient.get(`/admin/users/${userId}`);
+      const response = await apiClient.get(`/api/admin/users/${userId}`);
       return { success: true, data: response.data };
     } catch (error) {
       return {
@@ -39,7 +39,7 @@ const userService = {
    */
   changeUserRole: async (userId, role) => {
     try {
-      const response = await apiClient.put(`/admin/users/${userId}/role`, {
+      const response = await apiClient.put(`/api/admin/users/${userId}/role`, {
         role,
       });
       return { success: true, data: response.data };
@@ -56,7 +56,7 @@ const userService = {
    */
   deleteUser: async (userId) => {
     try {
-      const response = await apiClient.delete(`/admin/users/${userId}`);
+      const response = await apiClient.delete(`/api/admin/users/${userId}`);
       return { success: true, data: response.data };
     } catch (error) {
       return {
