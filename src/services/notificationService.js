@@ -2,6 +2,18 @@ import apiClient from './apiClient';
 import { mapErrorMessage } from '../utils/errorHandler';
 
 const notificationService = {
+  createNotification: async (notification) => {
+    try {
+      const response = await apiClient.post('/api/notifications', notification);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return {
+        success: false,
+        error: mapErrorMessage(error),
+      };
+    }
+  },
+
   /**
    * Get all notifications
    */

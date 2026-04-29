@@ -11,6 +11,8 @@ export default function ProfessionalProfile() {
   const professional = location.state;
 
   const { addReview, getReviewsForProfessional } = useReviews();
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState("");
 
   // 🔐 Safety check
   if (!professional) {
@@ -27,9 +29,6 @@ export default function ProfessionalProfile() {
   }
 
   const professionalReviews = getReviewsForProfessional(professional.id);
-
-  const [rating, setRating] = useState(5);
-  const [comment, setComment] = useState("");
 
   const renderStars = (value, interactive = false) => (
     <div className="flex gap-1 text-2xl">
@@ -53,13 +52,18 @@ export default function ProfessionalProfile() {
     navigate("/book", { state: professional });
   };
 
-  const submitReview = () => {
-    addReview({
+  const submitReview = async () => {
+    const result = await addReview(null, {
       professionalId: professional.id,
       professionalName: professional.name,
       rating,
       comment: comment.trim(),
     });
+
+    if (!result.success) {
+      alert(result.error || "Review could not be submitted");
+      return;
+    }
 
     setComment("");
     setRating(5);

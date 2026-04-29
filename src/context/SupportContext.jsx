@@ -1,11 +1,13 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import supportService from "../services/supportService";
 import { useNotifications } from "./NotificationContext";
+import { useAuth } from "./AuthContext";
 
 const SupportContext = createContext();
 
 export function SupportProvider({ children }) {
   const { addNotification } = useNotifications();
+  const { isAuthenticated, userRole } = useAuth();
   const [tickets, setTickets] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -197,3 +199,15 @@ export function SupportProvider({ children }) {
 }
 
 export const useSupport = () => useContext(SupportContext);
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setTickets([]);
+      return;
+    }
+
+    if (userRole === "support" || userRole === "admin") {
+      fetchAllTickets();
+    } else {
+      fetchTickets();
+    }
+  }, [isAuthenticated, userRole]);

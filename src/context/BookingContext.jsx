@@ -1,18 +1,24 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import bookingService from "../services/bookingService";
 import { useNotifications } from "./NotificationContext";
+import { useAuth } from "./AuthContext";
 
 const BookingContext = createContext();
 
 export function BookingProvider({ children }) {
   const { addNotification } = useNotifications();
+  const { isAuthenticated } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchBookings();
-  }, []);
+    if (isAuthenticated) {
+      fetchBookings();
+    } else {
+      setBookings([]);
+    }
+  }, [isAuthenticated]);
 
   // =========================================
   // FETCH ALL BOOKINGS

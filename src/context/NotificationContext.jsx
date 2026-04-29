@@ -1,9 +1,11 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import notificationService from "../services/notificationService";
+import { useAuth } from "./AuthContext";
 
 const NotificationContext = createContext();
 
 export function NotificationProvider({ children }) {
+  const { isAuthenticated } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -34,13 +36,13 @@ export function NotificationProvider({ children }) {
   };
 
   // =========================================
-  // ADD NOTIFICATION (LOCAL - for real-time UI updates)
+  // ADD NOTIFICATION
   // =========================================
-  const addNotification = (notification) => {
-    setNotifications(prev => [
-      { id: Date.now(), isRead: false, createdAt: new Date(), ...notification },
-      ...prev
-    ]);
+  const addNotification = async (notification) => {
+    const result = await notificationService.createNotification(notification);
+    if (result.success) {
+      setNotifications(prev => [result.data, ...prev]);
+    }
   };
 
   // =========================================
@@ -132,3 +134,10 @@ export function NotificationProvider({ children }) {
 }
 
 export const useNotifications = () => useContext(NotificationContext);
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchNotifications();
+    } else {
+      setNotifications([]);
+    }
+  }, [isAuthenticated]);

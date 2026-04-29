@@ -1,13 +1,24 @@
 import { useNavigate } from "react-router-dom";
 import { useBookings } from "../../context/BookingContext";
-import { useAuth } from "../../context/AuthContext";
 import { useProfessionals } from "../../pages/professional/ProfessionalContext";
+import { useEffect, useState } from "react";
+import userService from "../../services/userService";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const { bookings } = useBookings();
-  const users = JSON.parse(localStorage.getItem('mock_users_db') || "[]");
   const { professionals } = useProfessionals();
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    const loadUsers = async () => {
+      const result = await userService.getAllUsers();
+      if (result.success) {
+        setUsers(result.data || []);
+      }
+    };
+    loadUsers();
+  }, []);
 
   const totalUsers = users.length;
   const totalProfessionals = professionals.length;

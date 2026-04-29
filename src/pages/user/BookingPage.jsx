@@ -37,7 +37,7 @@ export default function BookingPage() {
     );
   }
 
-  const handleBooking = () => {
+  const handleBooking = async () => {
 
     if (!date || !time) {
       alert("Please select date and time");
@@ -57,8 +57,9 @@ export default function BookingPage() {
     }
 
     // ✅ FIX: add important fields
-    addBooking({
+    const result = await addBooking({
       professionalId: professional.id,
+      professionalEmail: professional.email,
       professionalName: professional.name,
       service: professional.category,
       price: professional.price,
@@ -70,6 +71,11 @@ export default function BookingPage() {
       status: "Confirmed",        // ✅ NEW
       paymentStatus: "Pending"    // ✅ NEW
     });
+
+    if (!result.success) {
+      alert(result.error || "Booking could not be created");
+      return;
+    }
 
     // Remove the booked slot seamlessly so others cannot double-book
     professionalService.updateAvailability(professional.id, time);
