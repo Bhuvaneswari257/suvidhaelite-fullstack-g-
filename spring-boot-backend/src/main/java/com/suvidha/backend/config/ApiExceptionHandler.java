@@ -40,6 +40,12 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
+    @ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
+    public ResponseEntity<Map<String, String>> handleBadCredentials(org.springframework.security.authentication.BadCredentialsException exception) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(Map.of("message", "Invalid email or password"));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleGeneric(Exception exception) {
         logger.error("Unhandled backend exception", exception);

@@ -18,23 +18,27 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserRepository userRepository;
+    private final CorsConfigurationSource corsConfigurationSource;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, UserRepository userRepository) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, UserRepository userRepository,
+                         CorsConfigurationSource corsConfigurationSource) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.userRepository = userRepository;
+        this.corsConfigurationSource = corsConfigurationSource;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
-            .cors(Customizer.withDefaults())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/refresh-token",

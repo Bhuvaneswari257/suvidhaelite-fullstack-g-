@@ -179,6 +179,21 @@ export function SupportProvider({ children }) {
     }
   };
 
+  // Load tickets whenever authentication/role changes.
+  // (This must be inside the provider; otherwise the app won't compile.)
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setTickets([]);
+      return;
+    }
+
+    if (userRole === "support" || userRole === "admin") {
+      fetchAllTickets();
+    } else {
+      fetchTickets();
+    }
+  }, [isAuthenticated, userRole]);
+
   return (
     <SupportContext.Provider
       value={{
@@ -199,15 +214,3 @@ export function SupportProvider({ children }) {
 }
 
 export const useSupport = () => useContext(SupportContext);
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setTickets([]);
-      return;
-    }
-
-    if (userRole === "support" || userRole === "admin") {
-      fetchAllTickets();
-    } else {
-      fetchTickets();
-    }
-  }, [isAuthenticated, userRole]);

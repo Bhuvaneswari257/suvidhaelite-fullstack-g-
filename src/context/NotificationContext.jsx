@@ -115,6 +115,14 @@ export function NotificationProvider({ children }) {
     }
   };
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchNotifications();
+    } else {
+      setNotifications([]);
+    }
+  }, [isAuthenticated]);
+
   return (
     <NotificationContext.Provider
       value={{
@@ -134,10 +142,3 @@ export function NotificationProvider({ children }) {
 }
 
 export const useNotifications = () => useContext(NotificationContext);
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchNotifications();
-    } else {
-      setNotifications([]);
-    }
-  }, [isAuthenticated]);
